@@ -6,6 +6,12 @@
   },
   "plugins": [
     {
+      "name": "market-analysis",
+      "version": "1.0.0",
+      "source": "./plugins/market-analysis",
+      "description": "Checks for people who use Python to analyse markets but don't read Python — audits technical-analysis and screening code for the data, indicator, and screener faults that make results look cleaner than reality, and reports them in terms of the result."
+    },
+    {
       "name": "notes-workflow",
       "version": "1.0.0",
       "source": "./plugins/notes-workflow",

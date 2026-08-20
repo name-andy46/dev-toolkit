@@ -84,6 +84,7 @@ Restart the session (or start a new one) after installing so the plugin's skills
 
 | Plugin | What it gives you |
 | --- | --- |
+| [`market-analysis`](plugins/market-analysis) | For people who analyse markets with Python but don't read Python: audits technical-analysis and stock-screening code for the data, indicator, and screener faults that make results look cleaner than reality — and explains what it found in terms of the result, not the code. |
 | [`notes-workflow`](plugins/notes-workflow) | A markdown notes vault Claude keeps current for you — daily logs, a `current_tasks.md` command center, meeting and people notes, weekly summaries, and a remember/recall memory. Creates the vault on first use; no setup. |
 | [`git-guardrails`](plugins/git-guardrails) | Safety rails on Claude's git access: blocks the commands that lose work you can't recover, and blocks a push whose commits add an API key. Hooks only, no skills. Pure Python. |
 | [`cli-tools-drill`](plugins/cli-tools-drill) | Practice drills for the Unix text-processing toolkit — `grep`, `sed`, `awk`, `find`/`xargs`, coreutils. Poses one real problem from your own repo and checks your answer instead of running the command for you. |

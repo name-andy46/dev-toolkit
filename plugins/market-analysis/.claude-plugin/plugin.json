@@ -1,0 +1,9 @@
+{
+  "name": "market-analysis",
+  "version": "1.0.0",
+  "description": "Checks for people who use Python to analyse markets but don't read Python — audits technical-analysis and screening code for the data, indicator, and screener faults that make results look cleaner than reality, and reports them in terms of the result.",
+  "author": {
+    "name": "Anant Dongre",
+    "email": "65720058+name-andy46@users.noreply.github.com"
+  }
+}
