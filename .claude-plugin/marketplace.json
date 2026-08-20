@@ -6,6 +6,12 @@
   },
   "plugins": [
     {
+      "name": "notes-workflow",
+      "version": "1.0.0",
+      "source": "./plugins/notes-workflow",
+      "description": "Daily-log lifecycle and task-file upkeep, meeting and people capture, plus a capture/recall memory workflow over a markdown notes vault. Creates the vault for you on first use."
+    },
+    {
       "name": "cli-tools-drill",
       "version": "1.0.0",
       "source": "./plugins/cli-tools-drill",

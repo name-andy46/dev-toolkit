@@ -1,0 +1,9 @@
+{
+  "name": "notes-workflow",
+  "version": "1.0.0",
+  "description": "Daily-log lifecycle and task-file upkeep, meeting and people capture, plus a capture/recall memory workflow over a markdown notes vault. Creates the vault for you on first use.",
+  "author": {
+    "name": "Anant Dongre",
+    "email": "65720058+name-andy46@users.noreply.github.com"
+  }
+}
