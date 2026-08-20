@@ -1,0 +1,29 @@
+# Secrets — never commit. Tokens and webhook URLs are sometimes staged as files
+# next to a plugin during setup; keep them out of a public repo unconditionally.
+.env
+.env.*
+*token*.txt
+*secret*.txt
+slack-url.txt
+*.pem
+*.key
+
+# Python bytecode from exercising plugin scripts in-repo
+__pycache__/
+*.pyc
+
+# Editor / OS noise
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Local Claude Code state (settings.local.json holds machine-specific permissions)
+.claude/settings.local.json
+
+# Untracked local denylist of private identifiers used by scripts/scan.sh
+.scan-local
+
+# Local dev container for working on this repo — inherits an internal base image
+# and documents internal infrastructure. Never publish it.
+.devcontainer/

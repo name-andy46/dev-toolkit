@@ -1,0 +1,8 @@
+{
+  "name": "dev-toolkit",
+  "description": "Reusable Claude Code plugins for day-to-day software work — spec-driven change workflows, service knowledge bases, AWS operations, git guardrails, notes, and command-line drills.",
+  "owner": {
+    "name": "Anant Dongre"
+  },
+  "plugins": []
+}

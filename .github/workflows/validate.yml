@@ -1,0 +1,23 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Manifests agree with each other and with the plugin directories.
+      # Dependency-free, so it needs no credentials. The richer check,
+      # `claude plugin validate . --strict`, is a local pre-commit step
+      # (see CONTRIBUTING.md) since it needs the Claude Code CLI.
+      - name: Check manifests
+        run: python3 scripts/check-manifests.py
+
+      # No credentials or environment-specific identifiers in a public repo.
+      - name: Scan for secrets and private identifiers
+        run: bash scripts/scan.sh
