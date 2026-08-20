@@ -22,7 +22,7 @@ path below says `notes/`, that's the vault root.
 
 ## Prerequisite
 
-Check if today's note exists by running `ls notes/01_Logs/YYYY/MM_MonthName/YYYY-MM-DD.md` via Bash. Do NOT use the Glob tool for this check — it may not find files in mounted/external directories. If the file does not exist (ls returns an error), invoke the `create-daily-note` skill first, then continue with the update.
+Check whether today's note exists by **reading** `notes/01_Logs/YYYY/MM_MonthName/YYYY-MM-DD.md` with the Read tool. A read error means it doesn't exist — invoke the `create-daily-note` skill first, then continue with the update. Use Read rather than a shell `ls`: it behaves identically on Windows, macOS, and Linux, and when the file does exist you already have its contents.
 
 Check `notes/current_tasks.md` the same way. If it's missing, do the log half and say the task half was skipped — don't create it here; `cleanup-daily-note` owns that on the first evening prune. If it exists, read it in **full** before writing: both the heading match and the dedupe gate depend on knowing every existing heading and item.
 

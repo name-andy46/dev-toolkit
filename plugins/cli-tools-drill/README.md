@@ -5,6 +5,14 @@ agent into a drill coach for one group of tools: it poses exercises, checks your
 adapts to how you're doing — so you build fluency by *doing* the commands, not by reading
 reference docs.
 
+## Prerequisites
+
+These are Unix tools. They ship with **macOS** and **Linux**, and on **Windows** they're available
+inside **WSL**, **Git Bash**, or MSYS2 — but *not* in PowerShell or `cmd`, where the equivalents
+are different cmdlets entirely (`Select-String`, `Where-Object`, `ForEach-Object`). If you only
+have PowerShell, this plugin won't be useful to you yet; the skill checks and says so rather than
+handing you a `grep` exercise you can't run.
+
 ## Skills
 
 ### text-tools-drill

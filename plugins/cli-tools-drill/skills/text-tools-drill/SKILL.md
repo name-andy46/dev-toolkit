@@ -11,6 +11,19 @@ Hand the user **one** real practice problem for the Unix pipe-filter tools — g
 
 **Self-contained.** Everything needed ships with this skill. The skill map lives in the bundled **`CHECKLIST.md`** next to this file. This skill does **not** require any personal notes/vault, learning-guide, or external file to run.
 
+## Prerequisite: a POSIX shell
+
+Every problem in this drill is a `grep`/`sed`/`awk`/`find` one-liner, so the user needs a shell
+where those exist: macOS, Linux, or — on Windows — WSL, Git Bash, or MSYS2. **PowerShell and `cmd`
+don't have them**; the equivalents are unrelated cmdlets (`Select-String`, `Where-Object`,
+`ForEach-Object`).
+
+If there's any doubt (the user is on Windows, or a shell command has already failed this session),
+**ask once before posing the first problem.** If they don't have a POSIX shell, say so plainly and
+stop — handing someone an exercise they cannot run teaches nothing. Don't silently translate the
+problem into PowerShell either: that's a different toolset with a different mental model, and it
+belongs in its own drill skill.
+
 ## Teaching contract (non-negotiable)
 
 - **Never give the command or the answer up front.** Pose the *problem statement* in plain English — what we want to know — plus which tool/flag to focus on. The user writes the command.

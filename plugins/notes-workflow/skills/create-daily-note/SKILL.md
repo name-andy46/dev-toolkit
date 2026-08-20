@@ -19,8 +19,8 @@ path below says `notes/`, that's the vault root.
 1. Determine today's date.
 2. Build the directory path: `notes/01_Logs/YYYY/MM_MonthName/` where `MM` is the zero-padded month number and `MonthName` is the full English month name (e.g., `notes/01_Logs/2026/03_March/`).
 3. Build the filename: `YYYY-MM-DD.md` inside that directory (e.g., `notes/01_Logs/2026/03_March/2026-03-17.md`).
-4. Check if the file already exists by running `ls notes/01_Logs/YYYY/MM_MonthName/YYYY-MM-DD.md` via Bash. Do NOT use the Glob tool for this check — it may not find files in mounted/external directories. If the file exists (ls succeeds), tell the user the note already exists for today and stop — do not overwrite it.
-5. Create the year and month directories if they don't already exist (e.g., `mkdir -p notes/01_Logs/2026/03_March/`).
+4. Check whether the file already exists by **reading** that path with the Read tool. If it reads back, the note already exists — tell the user and stop, don't overwrite it. If Read errors, it doesn't exist yet; carry on. (Read rather than a shell `ls`, so this works the same on Windows, macOS, and Linux.)
+5. Don't pre-create the year and month directories — the Write tool in step 8 creates missing parents. (If your environment reports otherwise, one command does it: `mkdir -p notes/01_Logs/2026/03_March` on macOS/Linux, or `New-Item -ItemType Directory -Force notes/01_Logs/2026/03_March` in PowerShell.)
 6. Read the template from `notes/04_Templates/Daily Log Template.md`. The vault's copy is the only copy — the user can retune their daily-note layout and a plugin update will never overwrite it. If it's missing (a hand-made vault, or they deleted it), restore it from this plugin's own `vault-template/04_Templates/Daily Log Template.md` (`${CLAUDE_PLUGIN_ROOT}/vault-template/...`), mention that you did, and carry on.
 7. Replace the two date placeholders in the template:
    - `{{date:YYYY-MM-DD}}` → ISO date, e.g., `2026-03-17`

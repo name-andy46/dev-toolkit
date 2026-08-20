@@ -13,7 +13,7 @@
     },
     {
       "name": "cli-tools-drill",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "source": "./plugins/cli-tools-drill",
       "description": "Interactive drills for learning the basic Linux command-line toolkit — each skill guides the agent through practice exercises for a group of related tools."
     }

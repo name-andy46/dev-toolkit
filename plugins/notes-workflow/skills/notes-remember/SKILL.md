@@ -26,9 +26,9 @@ path below says `notes/`, that's the vault root.
    - Ticket keys stay uppercase as-is: `PROJ-205` → `PROJ-205.md`.
    - Free-text: lowercase, hyphenate spaces/underscores, strip punctuation. `Monorepo restructure` → `monorepo-restructure.md`.
 
-3. **Ensure the dir exists**: `mkdir -p notes/06_Memory` (idempotent).
+3. **Don't pre-create the directory** — the Write tool creates missing parents. (If it reports otherwise: `mkdir -p notes/06_Memory` on macOS/Linux, `New-Item -ItemType Directory -Force notes/06_Memory` in PowerShell.)
 
-4. **Check whether the file exists**: `ls notes/06_Memory/<slug>.md` via Bash. Don't use Glob — it can miss files in mounted directories.
+4. **Check whether the file exists**: read `notes/06_Memory/<slug>.md` with the Read tool. A read error means it's new; a successful read hands you the existing content step 6 needs. Read behaves the same on every platform, unlike a shell `ls`.
 
 5. **If the file does not exist**, create it with typed frontmatter followed by the H1. The
    vault convention (see `<vault>/CLAUDE.md`) requires `type: memory` frontmatter on every

@@ -25,9 +25,9 @@ This skill accepts an **optional date argument** naming which daily note to clea
 
 ## Prerequisites
 
-Resolve the target date first (see "Which day to clean up"). Then check that its daily note exists by running `ls notes/01_Logs/YYYY/MM_MonthName/YYYY-MM-DD.md` via Bash (e.g., `ls notes/01_Logs/2026/07_July/2026-07-15.md`). Do NOT use the Glob tool for this check — it may not find files in mounted/external directories. If the file doesn't exist (ls returns an error), inform the user and stop — there's nothing to clean up.
+Resolve the target date first (see "Which day to clean up"). Then read that day's note at `notes/01_Logs/YYYY/MM_MonthName/YYYY-MM-DD.md` with the Read tool (e.g. `notes/01_Logs/2026/07_July/2026-07-15.md`) — you need its contents anyway. If Read errors, the note doesn't exist: tell the user and stop, there's nothing to clean up.
 
-Also check that `notes/current_tasks.md` exists by running `ls notes/current_tasks.md` via Bash. If it doesn't, copy this plugin's `vault-template/current_tasks.md` into the vault — that's the shipped starter, so a file created here matches what a fresh vault gets.
+Also read `notes/current_tasks.md`. If Read errors, it doesn't exist yet: copy this plugin's `vault-template/current_tasks.md` into the vault — that's the shipped starter, so a file created here matches what a fresh vault gets.
 
 ### Cleaning up a day that isn't today
 

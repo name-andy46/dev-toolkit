@@ -10,7 +10,8 @@ Try these in order and stop at the first hit:
 1. **`$NOTES_PATH`** — an absolute path, set by the user. Highest precedence, always wins.
 2. **A `notes/` directory under the current working directory.** Covers repos and containers that
    keep the vault alongside the code.
-3. **`~/notes`** — the default location for a vault this plugin created.
+3. **`~/notes`** in the user's home directory (`$HOME/notes`, or `%USERPROFILE%\notes` on
+   Windows) — the default location for a vault this plugin created.
 4. **Nothing found → offer to create one** (below). Do not stop with an error; a first-time user
    has no vault yet, and that's the normal case, not a failure.
 
@@ -61,5 +62,13 @@ written outside the vault is a note that's lost.
   vault can't be resolved and the user declined to create one, stop.
 - Read the vault's own `CLAUDE.md` before creating or editing a note in it. The user may have
   tuned the conventions, and their copy wins over anything assumed here.
-- Prefer `ls` via Bash over the Glob tool when checking whether a vault file exists — Glob can
-  miss files in mounted or symlinked directories.
+- **Use tools, not shell commands, for vault file operations.** Read to check whether a file
+  exists (an error means it doesn't) and to fetch its contents in the same call; Glob to list;
+  Grep to search; Write to create (it makes missing parent directories). `ls`, `mkdir -p`, `grep`
+  and `date -d` are unavailable or take different flags in PowerShell, so a skill built on them
+  fails on Windows. If Glob unexpectedly returns nothing for a vault you know exists — it can
+  miss mounted or symlinked directories — retry that one listing with a shell command.
+- **If a tool isn't available where you're running, fall back to the shell** — POSIX commands
+  (`ls`, `grep`, `mkdir -p`) on Linux, macOS, and Cowork's Linux workspace; the PowerShell
+  equivalents (`Get-ChildItem`, `Select-String`, `New-Item -ItemType Directory -Force`) on
+  Windows. The tools are the default and the shell is the fallback, never the other way round.

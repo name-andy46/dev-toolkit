@@ -12,7 +12,7 @@ Look up project context from the user's markdown notes vault (located per *Where
 
 The repo is large and noisy; the notes vault is small and authoritative for project context. A repo-wide scan costs time and tokens to rediscover something the notes already record.
 
-So: **no `grep -r` across the repo, no `find .` from the workspace root, no Explore subagent on the codebase as your first move.** Search the notes vault. If after going through the search ladder below you genuinely have nothing useful, say so out loud and ask before pivoting to a repo scan: *"Nothing in your notes about <X> — want me to grep the repo, or do you remember a different name for it?"* The user often remembers the exact file/topic name they used and that's faster than a scan.
+So: **no repo-wide Grep, no `find .` from the workspace root, no Explore subagent on the codebase as your first move.** Search the notes vault. If after going through the search ladder below you genuinely have nothing useful, say so out loud and ask before pivoting to a repo scan: *"Nothing in your notes about <X> — want me to grep the repo, or do you remember a different name for it?"* The user often remembers the exact file/topic name they used and that's faster than a scan.
 
 ## Where the vault lives
 
@@ -46,23 +46,21 @@ Pull the subject from the user's message — usually a ticket key, project name,
 
 Run these in order. **Stop as soon as you have enough to answer the user's question** — you don't need to exhaust every step.
 
-1. **Memory file (exact filename match)** — `ls notes/06_Memory/<slug>.md`. If present, read it. Newest date header at the top is usually what the user wants.
+Use the **Glob**, **Grep**, and **Read** tools throughout — not shell commands. They behave
+identically on Windows, macOS, and Linux, whereas `ls`, `grep`, `seq`, and `date -d` don't exist
+or don't take the same flags in PowerShell. If one of those tools isn't available in the
+environment you're running in, fall back to the shell — POSIX commands on Linux/macOS, the
+PowerShell equivalents on Windows — keeping the same scoping discipline each step describes.
 
-2. **Top-level project files** — `ls notes/*.md`, look for filenames containing the subject as a substring (case-insensitive). The user files project plans at the vault root like `PROJ-205-report-csv-refactor.md`, `monorepo-restructure-plan.md`, `PROJ-198-data-export-update.md`. Read matches.
+1. **Memory file (exact filename match)** — read `notes/06_Memory/<slug>.md`. If it reads back, that's usually the answer; the newest date header at the top is what the user wants.
 
-3. **`current_tasks.md`** — `grep -n -i "<subject>" notes/current_tasks.md`. The command center; active projects usually have a section here.
+2. **Top-level project files** — Glob `*.md` at the vault root and look for filenames containing the subject as a substring, case-insensitive. Project notes live at the root, like `PROJ-205-report-csv-refactor.md` or `monorepo-restructure-plan.md`. Read the matches.
 
-4. **Recent daily logs (last ~14 days only)** — don't scan all logs ever written; just the recent window:
-   ```bash
-   for i in $(seq 0 13); do
-     d=$(date -d "today - $i days" +%Y-%m-%d 2>/dev/null || date -v-${i}d +%Y-%m-%d)
-     y=$(echo $d | cut -c1-4); m=$(echo $d | cut -c6-7)
-     ls "notes/01_Logs/$y/${m}_"*/"$d.md" 2>/dev/null
-   done | xargs grep -l -i "<subject>" 2>/dev/null
-   ```
-   Read matches.
+3. **`current_tasks.md`** — Grep for the subject, case-insensitive, scoped to `notes/current_tasks.md`. The command center; active projects usually have a section here.
 
-5. **Subdirectories** — `ls notes/` for ad-hoc dirs (e.g., `product-research/`). `grep -r -l -i "<subject>" notes/<subdir>/` is fine because subdirs are bounded.
+4. **Recent daily logs (last ~14 days only)** — don't scan every log ever written. Work out the last 14 calendar dates yourself (you know today's date — no shell date arithmetic needed), then run **one** Grep: the subject as the pattern, case-insensitive, path `notes/01_Logs`, glob `**/*.md`, output mode `files_with_matches`. Keep the hits whose `YYYY-MM-DD.md` filename falls inside that window and read those.
+
+5. **Subdirectories** — Glob the vault root for ad-hoc directories (e.g. `product-research/`), then a Grep scoped to the one that matches. Scoping is what keeps this cheap; subdirs are bounded.
 
 6. **Fallback** — if all of the above turn up nothing, **tell the user and ask before scanning the repo or running anything wider**. Do not silently pivot.
 
@@ -83,7 +81,7 @@ If you find stale or conflicting info across multiple files (one says "in progre
 
 ## Costs and budget
 
-Reading the vault should be cheap: a handful of `ls`, one or two targeted `grep`s, and 1–3 `Read` calls on matching files. If you find yourself spawning an Explore subagent, running `grep -r` across the whole vault, or reading a dozen daily logs, stop — you're probably searching wrong. Re-check the ladder.
+Reading the vault should be cheap: one or two targeted Glob/Grep calls and 1–3 Read calls on the files they point at. If you find yourself spawning an Explore subagent, Grepping the whole vault unscoped, or reading a dozen daily logs, stop — you're probably searching wrong. Re-check the ladder.
 
 Repo-wide scanning is expensive and slow. Treat it as the last resort, not the first move.
 
