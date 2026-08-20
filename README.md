@@ -29,7 +29,7 @@ Restart the session (or start a new one) after installing so the plugin's skills
 
 | Plugin | What it gives you |
 | --- | --- |
-| _(none yet — plugins are added here as they land)_ | |
+| [`cli-tools-drill`](plugins/cli-tools-drill) | Practice drills for the Unix text-processing toolkit — `grep`, `sed`, `awk`, `find`/`xargs`, coreutils. Poses one real problem from your own repo and checks your answer instead of running the command for you. |
 
 Each plugin has its own `README.md` describing its skills, when they trigger, and any
 configuration it expects.

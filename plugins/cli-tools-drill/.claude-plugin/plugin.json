@@ -1,0 +1,9 @@
+{
+  "name": "cli-tools-drill",
+  "version": "1.0.0",
+  "description": "Interactive drills for learning the basic Linux command-line toolkit — each skill guides the agent through practice exercises for a group of related tools.",
+  "author": {
+    "name": "Anant Dongre",
+    "email": "65720058+name-andy46@users.noreply.github.com"
+  }
+}
