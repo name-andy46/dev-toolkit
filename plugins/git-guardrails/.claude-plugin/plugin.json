@@ -1,0 +1,9 @@
+{
+  "name": "git-guardrails",
+  "version": "1.0.0",
+  "description": "Hooks that block the agent from destructive git operations (history-rewriting pushes, hard resets, working-tree wipes), remote deletion of protected branches, hand-edits to .git/, and pushing a commit that adds a credential. Pure Python, no dependencies.",
+  "author": {
+    "name": "Anant Dongre",
+    "email": "65720058+name-andy46@users.noreply.github.com"
+  }
+}
