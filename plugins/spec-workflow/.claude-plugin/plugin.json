@@ -1,0 +1,9 @@
+{
+  "name": "spec-workflow",
+  "version": "1.0.0",
+  "description": "Decide what an application should do in writing you can read, then keep that writing true as it gets built — changes proposed as delta specs with GIVEN/WHEN/THEN scenarios, implemented against a checklist, verified, and merged into a source-of-truth spec under docs/, enforced by a dependency-free Python validator.",
+  "author": {
+    "name": "Anant Dongre",
+    "email": "65720058+name-andy46@users.noreply.github.com"
+  }
+}

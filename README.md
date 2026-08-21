@@ -28,13 +28,15 @@ working on code, start it inside that project's folder.
 
 A *marketplace* is just a list of available add-ons. Adding it downloads nothing but the list.
 
-**4. Install the one you want.** For example:
+**4. Install the ones you want.** [Which ones do I want?](#which-ones-do-i-want) matches them to what
+you're actually doing. For example:
 
 ```
-/plugin install notes-workflow@dev-toolkit
+/plugin install spec-workflow@dev-toolkit
+/plugin install git-guardrails@dev-toolkit
 ```
 
-The part after `@` says which marketplace it came from. See
+The part after `@` says which marketplace it came from. Installing several is fine — see
 [What's inside](#whats-inside) for the full list.
 
 **5. Restart.** Type `/exit`, then run `claude` again. New skills only load when a session starts,
@@ -80,11 +82,29 @@ claude plugin install <plugin-name>@dev-toolkit
 
 Restart the session (or start a new one) after installing so the plugin's skills load.
 
+## Which ones do I want?
+
+Find the row that sounds like you. Installing several is normal — they don't overlap or interfere,
+and each one only wakes up when what you're asking for matches it.
+
+| If you're… | Install | Why |
+| --- | --- | --- |
+| **building an app or tool with Claude** and can't review the code yourself | `spec-workflow` + `git-guardrails` | Write down what it should do in sentences you *can* check, then keep Claude from losing your work while it builds |
+| **analysing markets in Python** — screeners, indicators, technical analysis | `market-analysis` | Catches the data and indicator faults that make results look better than they are |
+| doing both of the above | all three | Define what the screener should do, then check that it actually does it |
+| **keeping track of your work** — what you did, what's next, what was decided | `notes-workflow` | Daily logs and a task list Claude maintains for you, in plain markdown you own |
+| letting Claude run **git** on a repo you care about | `git-guardrails` | Blocks the handful of commands that destroy work irreversibly, and blocks pushing a leaked API key |
+| wanting to **learn the command line** properly | `cli-tools-drill` | Hands you one real exercise at a time. Needs macOS, Linux, WSL or Git Bash — not PowerShell |
+
+**Not sure?** `spec-workflow` and `git-guardrails` are the two that pay off regardless of what you're
+building. Then say *"walk me through the spec workflow"* and it teaches itself on your own project.
+
 ## What's inside
 
 | Plugin | What it gives you |
 | --- | --- |
 | [`market-analysis`](plugins/market-analysis) | For people who analyse markets with Python but don't read Python: audits technical-analysis and stock-screening code for the data, indicator, and screener faults that make results look cleaner than reality — and explains what it found in terms of the result, not the code. |
+| [`spec-workflow`](plugins/spec-workflow) | Decide what your application should do in writing you can read — requirements as GIVEN/WHEN/THEN scenarios, proposed as a change, implemented against a checklist, verified, then merged into a source-of-truth spec. Includes a tutorial that teaches the whole loop on your own repo. |
 | [`notes-workflow`](plugins/notes-workflow) | A markdown notes vault Claude keeps current for you — daily logs, a `current_tasks.md` command center, meeting and people notes, weekly summaries, and a remember/recall memory. Creates the vault on first use; no setup. |
 | [`git-guardrails`](plugins/git-guardrails) | Safety rails on Claude's git access: blocks the commands that lose work you can't recover, and blocks a push whose commits add an API key. Hooks only, no skills. Pure Python. |
 | [`cli-tools-drill`](plugins/cli-tools-drill) | Practice drills for the Unix text-processing toolkit — `grep`, `sed`, `awk`, `find`/`xargs`, coreutils. Poses one real problem from your own repo and checks your answer instead of running the command for you. |

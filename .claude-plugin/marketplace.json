@@ -12,6 +12,12 @@
       "description": "Checks for people who use Python to analyse markets but don't read Python — audits technical-analysis and screening code for the data, indicator, and screener faults that make results look cleaner than reality, and reports them in terms of the result."
     },
     {
+      "name": "spec-workflow",
+      "version": "1.0.0",
+      "source": "./plugins/spec-workflow",
+      "description": "Decide what an application should do in writing you can read, then keep that writing true as it gets built — changes proposed as delta specs with GIVEN/WHEN/THEN scenarios, implemented against a checklist, verified, and merged into a source-of-truth spec under docs/, enforced by a dependency-free Python validator."
+    },
+    {
       "name": "notes-workflow",
       "version": "1.0.0",
       "source": "./plugins/notes-workflow",
