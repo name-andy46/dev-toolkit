@@ -7,6 +7,8 @@ description: Generates a condensed weekly summary note from the previous Mon–S
 
 Read the Mon–Sun daily logs for the most recent completed work week, extract meetings and completed work, condense it into a short weekly note, and save it to `notes/05_Weekly/`.
 
+The note serves two readers at once: the author, who needs the week's detail and its loose ends, and a **manager or CTO with 20 seconds and no context**, who needs `## The Short Version` at the top (Step 5) and nothing else.
+
 ## Where the vault lives
 
 Paths below are relative to the notes vault. **Resolve the vault as described in
@@ -133,6 +135,53 @@ jobs, split it (e.g. "Bugs closed in production" vs "Tickets filed") rather than
 **Before writing the file, check yourself:** count the bullets and skim for any that exceed ~40
 words. Rewriting an over-long bullet at draft time costs far less than the reader's attention.
 
+### The Short Version — write it last, place it first
+
+Every weekly note opens with a `## The Short Version` section written for a **manager or CTO who
+has about 20 seconds and no context whatsoever**. It is not a teaser for the detail below — it is
+the only part many readers will ever read, so it has to stand on its own.
+
+Write it **after** the rest of the note exists. It is a compression of `Done This Week`, and you
+cannot compress what you have not yet written. Then place it directly under the `#` title, above
+`## Meetings` / `## Done This Week`.
+
+**Rules:**
+
+- **Six bullets maximum, ~80 words for the whole section.** That is the 20-second budget. Fewer is
+  better. One line per bullet: a bold clause naming the outcome, then plain English explaining it.
+- **No exact numbers anywhere in this section.** No counts, measurements, durations, percentages,
+  money, or versions — not even small ones like "two security holes". Figures invite scrutiny the
+  reader has no time for, and every one of them already appears in the detail sections below. Write
+  "functions were failing", not "18 functions"; "now none", not "~32 per run → 0".
+- **No internal vocabulary at all.** No ticket ids, PR numbers, commit hashes, file paths, function
+  or variable names, tool or library names, log-line names, ADR numbers, spec or change names, repo
+  jargon, or runtime versions. If a term would make the reader ask "what is that?", it is banned.
+- **Order by what the reader might have to act on**, never chronologically:
+  1. **Unfixed risk** — anything security-, data- or customer-affecting that is still open. Mark `⚠️`.
+  2. **Blocked, or finished but not yet live** — and what it is waiting on.
+  3. **Shipped work**, most consequential first.
+- **Every bullet must close.** Say what was wrong or built *and* where it now stands — "live in all
+  environments", "not yet in production", "not fixed yet". A bullet that leaves the reader hanging
+  has failed, however accurate it is.
+
+**The test — apply it to every bullet before writing the file.** Read the bullet as someone who has
+never seen this codebase, and list the questions it raises. *Why that runtime version? What is a
+REPORT line? What does that acronym mean? Where was that recorded? Why does any of this matter?*
+If a single question survives, the bullet is still written for you rather than for them. Rewrite it
+in the words you would use out loud to a non-engineer.
+
+**Worked example**, same week, before and after:
+
+> ❌ On python3.13 a serverless function timing out or running out of memory writes nothing but a
+> `REPORT` line, so 3 of 11 error terms matched nothing and 18 production functions raised zero
+> alerts; ADR-0029 recorded.
+
+> ✅ **Fixed silent production crashes** — we were not catching timeout and out-of-memory errors.
+> Functions were failing with no alert to anyone. Live in all environments.
+
+The detail in the ❌ version is not deleted from the note — it stays in `Done This Week`, where a
+reader who wants it will find it. The Short Version is the door, not the room.
+
 ## Step 6: Write the output file
 
 **Filename format:**
@@ -156,6 +205,10 @@ week_start: YYYY-MM-DD
 week_end: YYYY-MM-DD
 ---
 # Week of <Mon Abbr DD> – <Sun Abbr DD>, YYYY
+
+## The Short Version
+- **<outcome in plain English>** — <where it now stands. No figures, no jargon.>
+... (max 6 bullets, ~80 words total)
 
 ## Meetings
 - **<Day Abbr DD>**: <meeting summary>
@@ -181,11 +234,15 @@ week_end: YYYY-MM-DD
 
 If there were no meetings at all that week, omit the Meetings section entirely.
 
+**`The Short Version` is never omitted** — if the week was light, it gets two bullets, not zero.
+
 Omit any empty bucket in **Status Check**; omit the whole section if all four buckets are empty.
 
 ## Step 7: Confirm to the user
 
 Tell the user the file was created and give the path. Optionally note how many days had content and how many were skipped.
+
+Show `The Short Version` back to the user in your reply — it is the part they are most likely to send onward, and the part most worth a second opinion. Flag anything you deliberately left out of it, and any number you had to soften into a phrase.
 
 If any files are "Ready to archive", remind the user that archival is manual and ask whether to move them to `notes/Archive/` (only terminal-state files — `done` plans, `resolved`/`wontfix` bugs and investigations — per the convention). Never move files automatically.
 
@@ -202,3 +259,10 @@ When in doubt, keep the bullet that answers "what changed / what was decided" an
 A dense week is not a licence to write a long note. When there is genuinely more work than fits,
 group harder and lean on wikilinks — the weekly is an index to the week, not a record of it. The
 daily logs and the spun-out notes are the record.
+
+The two audiences pull in opposite directions, and that is fine. `Done This Week` is allowed to be
+dense, technical and specific — that is what makes it useful a month later. `The Short Version` is
+allowed to be almost lossy, because a manager who reads six plain sentences and comes away with the
+right impression of the week has got everything they needed. Do not let either one drag the other
+toward the middle: a Short Version padded with detail stops being readable in 20 seconds, and a
+Done This Week flattened into plain English stops being worth writing down.

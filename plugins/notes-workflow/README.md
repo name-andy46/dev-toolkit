@@ -108,12 +108,13 @@ codes and the fixes you tried, links, and "aha" moments. A new task surfaces mid
 your notes (see `notes-recall`) instead of working it out from scratch.
 
 **After each chunk (log + reconcile).** Finished a meaningful piece of work? Log it and reconcile
-`current_tasks.md` against it *before moving on* — tick what it closed, file what it genuinely
-opened. Do this in the session that did the work: whether an item is done, and whether a loose end
-is a real task or just something you noticed, is only reliably knowable while the context is still
-live (see `update-daily-note`).
+`current_tasks.md` against it *before moving on* — tick what it closed, update what it advanced,
+and stage anything it genuinely opened in the day's **To Carry Forward**. Do this in the session
+that did the work: whether an item is done, and whether a loose end is a real task or just
+something you noticed, is only reliably knowable while the context is still live (see
+`update-daily-note`).
 
-**Evening (prune).** Review the log, consolidate what's done, migrate unfinished `- [ ]` items to
+**Evening (prune).** Review the log, consolidate what's done, migrate the staged `- [ ]` items into
 `current_tasks.md`, and strip the noise so only the signal remains for later recall.
 
 **End of week.** Roll the week's daily logs into a single summary in `05_Weekly/`.
@@ -131,33 +132,46 @@ git activity, and errors hit. Populates **Work Stream** (raw technical log), **D
 (`- [x]`), and suggested **Top Priorities**. Append-only for the log — never edits or removes
 existing content; creates today's note first if it's missing.
 
-It then **reconciles `current_tasks.md` against the same work**: ticks the items it closed
-(rewriting each to say what happened, never striking through), edits the ones it advanced but
-didn't finish, and files the loose ends that are genuinely new tasks — per the shared
-[`references/task-placement-rules.md`](references/task-placement-rules.md). Loose ends no longer
-pile up as `- [ ]` in **To Carry Forward**; that section gets a pointer line naming where they went.
+It then **reconciles `current_tasks.md` against the same work** — but only the items already in it:
+it ticks the ones it closed (rewriting each to say what happened, never striking through) and
+edits the ones it advanced but didn't finish. **It never adds a task.** Loose ends that are
+genuinely new work are staged in **To Carry Forward** as `- [ ]` items, grouped under `###`
+headings naming where each belongs in `current_tasks.md`, and the evening prune migrates them.
 
-The two halves are one skill because they answer the same two questions — *what did this finish?*
-and *what's still open?* — and both answers need to know what actually happened. The evening prune
-runs cold and can only read the text of a line. Run this after each meaningful chunk of work, not
-only at day's end; the log half is append-only, so running it repeatedly just gives a more granular
-Work Stream.
+That split follows the two questions rather than the two skills. *Is this a task at all?* needs the
+warm context of the session that did the work, so it happens here, at Carry Forward — the evening
+prune runs cold and can only read the text of a line. *Where does a new item go in a file that
+grows all week?* needs a cold read of the whole file, so it happens once, in the evening, by one
+writer (see [`references/task-placement-rules.md`](references/task-placement-rules.md), which is
+split into ADMISSION and PLACEMENT along exactly that line). Reconciling an item that already
+exists needs neither, which is why ticking and updating stay here.
+
+Run this after each meaningful chunk of work, not only at day's end; the log half is append-only,
+so running it repeatedly just gives a more granular Work Stream.
 **Triggers:** "update my daily note", "log my session", "wrap up", "save my progress", "tick off
 what we did", "I've finished X", "I'm done for now".
 
 ### `cleanup-daily-note` — evening prune
-End-of-day tidy of a daily note: consolidates completed items into Done Today, migrates unfinished
-`- [ ]` items into `current_tasks.md`, flags noise in Work Stream for your review *before* removing
-anything, and checks off the Evening Prune list. Cleans today by default, or a past date when you
-name one (backdated prunes also check whether an item was already resolved since that day).
+End-of-day tidy of a daily note, and **the only skill that adds to `current_tasks.md`**:
+consolidates completed items into Done Today, migrates unfinished `- [ ]` items into
+`current_tasks.md`, flags noise in Work Stream for your review *before* removing anything, and
+checks off the Evening Prune list. Cleans today by default, or a past date when you name one
+(backdated prunes also check whether an item was already resolved since that day).
 
-Migration follows the shared **placement rules** in
+Items arrive by two routes. The normal one is **To Carry Forward**, where `update-daily-note`
+staged them under a `###` heading naming their destination — those already passed the admission
+test in the session that knew, so the proposed heading is honoured by default and the prune adds
+what only a whole-file view can: resolving the heading, the dedupe gate, checking the task wasn't
+finished later that day, and tagging it with the *note's* date rather than the prune's. The other
+route is loose checkboxes elsewhere in the note (Top Priorities, hand-written items), which carry
+no destination and get placed from scratch.
+
+Both follow the shared rules in
 [`references/task-placement-rules.md`](references/task-placement-rules.md) so `current_tasks.md`
-doesn't drift — where an item goes (projects as headings, never dates; the origin date rides the
-item as `` `(MM-DD)` ``), what may be admitted at all (~40 words; an action and a doer, so status
-and reference facts don't become permanently-open checkboxes), and a **hard dedupe gate** that
-requires reading the target section before writing. `update-daily-note` reads the same file, which
-is what keeps two writers from governing the command center differently.
+doesn't drift — **PLACEMENT** (this skill only): where an item goes, projects as headings and never
+dates, the origin date riding the item as `` `(MM-DD)` ``, plus a **hard dedupe gate** that
+requires reading the target section before writing; **ADMISSION** (both skills): ~40 words, an
+action and a doer, so status and reference facts don't become permanently-open checkboxes.
 
 Because migration only ever adds, the pass also **prunes the sections it wrote to**: over-long
 items are compressed (detail moves to the topic note, the item keeps a link) and non-tasks are
@@ -179,10 +193,18 @@ ready to archive, and **in flight** (actively moving, so visibly *not* drift). I
 it never moves or edits those files. A file carrying a `status:` but no `type:` is itself flagged,
 since the vault's lifecycles key off `type` and an untyped file is invisible to type-based scans.
 
-The condensation targets a note readable in ~2 minutes, so it is opinionated about **bullet length**
-(~25–35 words, 40 as the ceiling), not just bullet count: raw measurements, derivation chains, and
-process steps get pushed down into the linked note behind a `[[wikilink]]`, while reversed
-conclusions and plan-killing findings are kept even when they cost words.
+The note is written for two readers. `Done This Week` is for you: condensation targets a note
+readable in ~2 minutes, so it is opinionated about **bullet length** (~25–35 words, 40 as the
+ceiling), not just bullet count — raw measurements, derivation chains, and process steps get pushed
+down into the linked note behind a `[[wikilink]]`, while reversed conclusions and plan-killing
+findings are kept even when they cost words.
+
+`## The Short Version` at the top is for **a manager or CTO with 20 seconds and no context** —
+six bullets, ~80 words, written last and placed first. It bans exact numbers and internal
+vocabulary outright (ticket ids, paths, function names, tool names, runtime versions), orders by
+what the reader might have to act on rather than chronologically (unfixed risk → blocked or not yet
+live → shipped), and requires every bullet to say where the thing now stands. It is never omitted;
+a light week gets two bullets, not zero.
 **Triggers:** "summarize the week", "weekly update", "what did we do this week", "it's Friday,
 let's recap".
 
@@ -198,7 +220,7 @@ appends a follow-up section rather than overwriting.
 
 Action items you owe deliberately **stay** in the meeting note rather than being written straight to
 `current_tasks.md` — they reach it through the normal `cleanup-daily-note` pass, which owns the
-placement and dedupe rules, so only one skill ever writes that file.
+placement and dedupe rules, so only one skill ever adds to that file.
 **Triggers:** "capture the meeting", "log that call", "just got off a call", "quick sync with
 &lt;names&gt;", "we just decided X on a call", "minute that". For a *solo* work session use
 `update-daily-note` instead.

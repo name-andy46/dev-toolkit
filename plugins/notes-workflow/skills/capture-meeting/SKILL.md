@@ -159,8 +159,9 @@ the notes tooling depends on.
 
 Action items the user owes are deliberately **not** written to `current_tasks.md` here.
 They live in the meeting note and reach the task file through the normal
-`cleanup-daily-note` pass, which owns the placement and dedupe rules. Two skills writing
-to the same file with different rules is how that file drifts.
+`cleanup-daily-note` pass — the only skill that adds to it, and the one that owns the
+placement and dedupe rules. Several writers appending to that file through the day, each
+seeing a different snapshot of it, is how it drifts.
 
 ### 2. Attendee notes in `03_People/`
 

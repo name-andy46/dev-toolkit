@@ -124,3 +124,47 @@ The weekly-summary skill scans plan/bug/investigation files and flags drift: a n
 `status` with a stale `updated`, `verifying-prod` items to check, and terminal-state items ready
 to archive.
 
+## How items enter `current_tasks.md`
+
+**One skill adds items here: `cleanup-daily-note`, the evening prune** — plus you, on direct
+instruction. It applies the placement rules in the `notes-workflow` plugin's
+`references/task-placement-rules.md` (PLACEMENT: rules 1–5 and the dedupe gate).
+
+`update-daily-note` may **tick and update** items that already exist, but never adds one. New
+tasks it opens during a session are staged in that day's `## ⏭ To Carry Forward` section, under
+`###` headings naming the `current_tasks.md` heading they belong to, and the evening prune
+migrates them. It applies the same reference's ADMISSION rules (6–7) when staging.
+
+The split follows the two questions, not the two skills. *Is this a task at all?* needs the warm
+context of the session that did the work, so it happens at Carry Forward. *Where does a new item
+go in a file that grows all week?* — the heading match, the dedupe gate, the ordering — needs a
+cold read of the whole file, so it happens once, in the evening, by one writer. Reconciling an
+item that already exists needs neither, which is why ticking and updating stay warm.
+
+**Never write here proactively by inference** — an ad-hoc edit bypasses those rules. This holds
+even when your own work has just made a line here wrong: invoke `update-daily-note` to tick or
+update it, stage a correction in Carry Forward, or say the line is stale and let the user decide.
+The same applies in any repo; these conventions load wherever the vault is in play.
+
+## How items leave `current_tasks.md`
+
+A completed item is **not** struck through. Mark it `- [x]` and rewrite the text to say what
+actually happened — the `cleanup-daily-note` skill sweeps `- [x]` items out of `current_tasks.md`
+into that day's `## ✅ Done Today`, then deletes them from the command center. `- ~~struck~~`
+without a checkbox reads as done to a human and as open to the sweep, so it never leaves; that is
+how a section accumulates months of finished work.
+
+Two consequences worth knowing:
+
+- **Mark it done on the day it happened.** The sweep files items under the *current* daily log,
+  so ticking a week-old completion backdates nothing and misfiles it. If the work is already
+  recorded in an earlier day's Done Today, delete the item outright instead — it is duplication,
+  not a pending migration.
+- **Detail belongs in the daily log and the topic note, not here.** Verbosity is correct in
+  `01_Logs/` (durable record) and in the per-topic working note (the reasoning); a
+  `current_tasks.md` entry only has to carry enough to recognise the work and find it again.
+
+A whole `# <Project>` section is deleted once every item under it is gone and its linked note has
+reached a terminal `status`. Flagging a header `READY TO ARCHIVE` is a note to the next cleanup
+run, not an archival in itself.
+

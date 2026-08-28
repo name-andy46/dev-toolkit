@@ -1,17 +1,15 @@
 ---
 name: update-daily-note
-description: Appends a session summary to the daily work log in notes/01_Logs/YYYY/MM_MonthName/, and reconciles current_tasks.md against the work just done — ticking the items it closed and filing the ones it genuinely opened, while the session still has the context to tell a task from an observation. Use this skill whenever the user wants to update their daily note, log their session, wrap up their day, end a session, capture progress, record what was done, or check off what a chunk of work finished. Triggers on phrases like "update my daily note", "log my session", "wrap up", "end session", "update my log", "save my progress", "what did we do today", "tick off what we did", "I've finished X", or any request to record the current session's work. Also use when the user says something like "I'm done for now" or "let's close out". Run it after each meaningful chunk of work, not only at day's end.
+description: Appends a session summary to the daily work log in notes/01_Logs/YYYY/MM_MonthName/, ticks off and updates the current_tasks.md items the work touched, and stages any newly opened tasks in the day's Carry Forward section for the evening cleanup to migrate — while the session still has the context to tell a task from an observation. It never adds tasks to current_tasks.md itself. Use this skill whenever the user wants to update their daily note, log their session, wrap up their day, end a session, capture progress, record what was done, or check off what a chunk of work finished. Triggers on phrases like "update my daily note", "log my session", "wrap up", "end session", "update my log", "save my progress", "what did we do today", "tick off what we did", "I've finished X", or any request to record the current session's work. Also use when the user says something like "I'm done for now" or "let's close out". Run it after each meaningful chunk of work, not only at day's end.
 ---
 
 # Update Daily Note
 
-Record the current session's work in two places: append a terse summary to today's daily note at `notes/01_Logs/YYYY/MM_MonthName/YYYY-MM-DD.md` (e.g., `notes/01_Logs/2026/03_March/2026-03-21.md`), and reconcile `notes/current_tasks.md` against what the work actually did.
+Append a terse summary of the current session to today's daily note at `notes/01_Logs/YYYY/MM_MonthName/YYYY-MM-DD.md` (e.g., `notes/01_Logs/2026/03_March/2026-03-21.md`), reconcile the `notes/current_tasks.md` items the work touched, and stage anything it newly opened in the note's **To Carry Forward** section.
 
-## Run this after each chunk, not just at day's end
+**This skill never adds a task to `current_tasks.md`.** It may tick and update items that are already there; new work is staged in Carry Forward and migrated that evening by `cleanup-daily-note`, the file's only writer.
 
-Both halves of this skill answer the same two questions — *what did this work finish?* and *what's still open?* — so they run as one pass, against one set of live context. That context is the whole point: whether an item is done, and whether a loose end is a real task or just something you noticed, is only reliably knowable in the session that did the work. `cleanup-daily-note` runs cold in the evening and can only read the text of a line.
-
-The log half is append-only and safe to run repeatedly, so running this several times a day costs nothing and gives a more granular Work Stream. If it only gets run once at day's end, that still works — it's one larger reconcile, still warm.
+**Run it after each chunk, not just at day's end.** Whether an item is done, and whether a loose end is a real task or just something you noticed, is only reliably knowable in the session that did the work — `cleanup-daily-note` runs cold and can only read the text of a line. The log half is append-only and safe to re-run, so several passes a day cost nothing and give a more granular Work Stream.
 
 ## Where the vault lives
 
@@ -24,81 +22,96 @@ path below says `notes/`, that's the vault root.
 
 Check whether today's note exists by **reading** `notes/01_Logs/YYYY/MM_MonthName/YYYY-MM-DD.md` with the Read tool. A read error means it doesn't exist — invoke the `create-daily-note` skill first, then continue with the update. Use Read rather than a shell `ls`: it behaves identically on Windows, macOS, and Linux, and when the file does exist you already have its contents.
 
-Check `notes/current_tasks.md` the same way. If it's missing, do the log half and say the task half was skipped — don't create it here; `cleanup-daily-note` owns that on the first evening prune. If it exists, read it in **full** before writing: both the heading match and the dedupe gate depend on knowing every existing heading and item.
+Check `notes/current_tasks.md` the same way. If it's missing, do the log half, stage Carry Forward items under best-guess headings, and say there were none to match — don't create it here; `cleanup-daily-note` owns that on the first evening prune. If it exists, read it in **full**. You need every heading (to name Carry Forward destinations) and every open item (to know what to tick or update, and to avoid staging a duplicate). The tail is not enough.
 
-Then read `$SKILL/../../references/task-placement-rules.md`. Rules 1–5 decide where an item goes, rules 6–7 decide whether it may be written at all, and the dedupe gate decides new-item-vs-merge. `cleanup-daily-note` applies the identical rules — that shared rulebook is what keeps the file coherent with two writers.
+Then read `$SKILL/../../references/task-placement-rules.md`. **ADMISSION** (rules 6–7) is yours — it governs what may be written into Carry Forward. **PLACEMENT** is `cleanup-daily-note`'s, but read rules 1 and 3 anyway, since that is how headings are named and you may be proposing one.
 
 ## Gather session data
 
-Pull from every available source to build a complete picture of the session:
-
-1. **Conversation context** — review what was discussed, built, debugged, or decided in this session. This is your richest source.
-2. **Git activity** — run:
-   - `git log --since="midnight" --oneline` for today's commits
-   - `git diff --stat` for uncommitted changes
-   - `git branch --show-current` for branch context
-3. **Errors and resolutions** — any errors encountered during the session and how they were resolved.
+1. **Conversation context** — what was discussed, built, debugged, or decided. Your richest source.
+2. **Git activity** — `git log --since="midnight" --oneline`, `git diff --stat`, `git branch --show-current`.
+3. **Errors and resolutions** — errors hit during the session and how they were resolved.
 
 ## What to write
 
-Generate terse bullet points for these sections. Think commit messages, not prose. Include commit hashes, file paths, error codes, and PR/issue references where relevant.
+Terse bullets. Think commit messages, not prose. Include commit hashes, file paths, error codes, and PR/issue references where relevant.
 
 ### Work Stream (The "Sensor")
 
-The raw technical log of the session. Capture:
+The raw technical log of the session:
 - Commands run and their outcomes (especially non-obvious ones)
 - Error codes and fixes attempted/applied
 - Links to PRs, docs, or external resources referenced
-- Key realizations or insights ("aha!" moments)
-- Files and modules touched, with brief context
+- Key realizations or insights ("aha!" moments), and files touched with brief context
 
 Format: `- <short description> — <context/detail>`
 
 ### Done Today
 
-Items completed during this session, as checked-off checkboxes:
-- `- [x] <what was completed>`
+Items completed during this session: `- [x] <what was completed>`
 
-### To Carry Forward
+### To Carry Forward — this is where new tasks go
 
-**Don't write task checkboxes here.** Unfinished work goes straight into `current_tasks.md` in the reconcile below, where the placement and dedupe rules apply. Leave a single italic pointer line naming where the items went — the same pattern `cleanup-daily-note` uses — so the day's note records the hand-off without duplicating the task list:
+**Every task this session opens is written here, and nowhere else.** Carry Forward is the staging area; `cleanup-daily-note` migrates it that evening.
+
+Write real checkboxes, grouped under a `###` heading naming **where the item should end up** in `current_tasks.md`:
 
 ```markdown
-*3 items filed to `current_tasks.md` → # widget-service, # PROJ-88 — checkout regression*
+## ⏭ To Carry Forward (Evening Cleanup)
+
+### # widget-service ▸ ## Console
+- [ ] Run `seed_fixtures.sh` — needs the staging DB URI, blocks the PROJ-88 repro
+
+### # PROJ-88 — checkout regression  (new heading)
+- [ ] Reproduce the intermittent 502 on staging
 ```
 
-This is the one section whose behaviour changed. Previously every loose end became a `- [ ]` here and was migrated to `current_tasks.md` that evening by a reader who couldn't tell a task from an observation. Now it faces rule 7 at the moment it's written, by the session that knows.
+**Choosing the heading.** You have read `current_tasks.md` in full, so use it:
+
+- **Related to work already tracked there → reuse that exact heading**, verbatim, including the `## ` area sub-heading if the project has them. Write it as `# Project` or `# Project ▸ ## Area`. This is the common case.
+- **Genuinely new work with no home there → name a new heading** per placement rules 1 and 3 (a durable project, repo, service, ticket or feature area — never a date) and mark it `(new heading)`.
+- **No existing project fits and it isn't worth a new heading** → it is probably not a task. Apply rule 7; if it survives, ask rather than inventing a home for it.
+
+**Apply the admission test before writing anything here.** Rules 6 and 7 govern this section exactly as they govern `current_tasks.md` — an item is the action plus ~40 words of context, and it needs an action and a doer. Status, reference facts, warnings and findings are not tasks; they belong in Work Stream, the topic note, or `06_Memory/`.
+
+**Don't stage a duplicate.** If an equivalent item already exists in `current_tasks.md`, tick or update it in place instead. And no date tags here — the note *is* the date, and the evening pass tags each item with the note's date, which stays correct on a backdated prune.
 
 ### Top Priorities (suggestions only)
 
-If the session revealed clear priorities, suggest 1-2 items. Prefix with "(suggested)" so the user can tell these apart from items they wrote themselves:
+If the session revealed clear priorities, suggest 1–2, prefixed so the user can tell them from their own:
 - `- [ ] (suggested) <priority item>`
 
-A suggestion must pass rule 7 like anything else — it needs an action and a doer. "Widget throughput looks low" is an observation; put it in Work Stream. "Profile widget_handler throughput" is a priority.
+A suggestion must pass rule 7 too — it needs an action and a doer. "Widget throughput looks low" is an observation; put it in Work Stream. "Profile widget_handler throughput" is a priority.
 
-Do not touch **Meetings & Syncs** or **Evening Prune** — those are for the user to fill in.
+Do not touch **Meetings & Syncs** or **Evening Prune** — those are the user's.
 
 ## How to append
 
-This document is shared between the user, this skill, and possibly other sessions throughout the day. Treat it as append-only:
+The daily note is shared between the user, this skill, and possibly other sessions. Treat it as append-only:
 
 1. Read the current file content.
-2. For each section to update, locate the section header by its emoji prefix:
-   - `## 🎯 Top Priorities`
-   - `## 🛠 Work Stream`
-   - `## ✅ Done Today`
-   - `## ⏭ To Carry Forward`
-3. Find the end of that section's content — the line just before the next `## ` header or `---` separator.
-4. Insert your new bullet points at that position.
-5. If the section already has content, add a blank line before your new entries to visually separate them from previous content.
+2. Locate the section header by its emoji prefix — `## 🎯 Top Priorities`, `## 🛠 Work Stream`, `## ✅ Done Today`, `## ⏭ To Carry Forward`.
+3. Insert at the end of that section's content — just before the next `## ` header or `---` separator — with a blank line first if the section already has content.
 
-Never modify, reorder, or remove existing lines. If the user wrote something in a section, your entries go after theirs. The user trusts that their edits will persist exactly as written.
+Never modify, reorder, or remove existing lines. If the user wrote something in a section, your entries go after theirs. In Carry Forward, if a `###` heading you need is already present from an earlier chunk, append under it rather than opening a second copy.
 
-**This append-only guarantee covers the daily log only.** The reconcile below deliberately modifies `current_tasks.md` — ticking an item rewrites its line. That's the one file this skill is allowed to edit in place, and only in the ways described.
+**This append-only guarantee covers the daily log only.** The reconcile below deliberately rewrites lines in `current_tasks.md`.
 
-## Reconcile `current_tasks.md`
+## What this skill may do to `current_tasks.md`
 
-Same session data, same two judgments, now applied to the task file.
+**Read it in full. Tick what the work closed. Update what it changed. Add nothing.**
+
+| Allowed | Not allowed |
+|---|---|
+| Tick an existing item and rewrite its line to say what happened | Add a new item |
+| Update an existing open item's text to reflect its new state | Create a new heading |
+| | Delete, sweep, or reorder anything |
+
+New work goes to Carry Forward. `cleanup-daily-note` is the only skill that adds to `current_tasks.md`, plus the user on direct instruction.
+
+The split follows the two questions rather than the two skills. Deciding *whether a loose end is a task* needs warm context, so it happens here. Deciding *where a new item goes in a file that grows all week* — the heading match, the dedupe gate, the ordering — needs a cold read of the whole file, so it happens once, in the evening, by one writer. Reconciling an item that already exists needs neither: you know what you just did to it.
+
+## Reconcile
 
 ### First, establish what the chunk actually did
 
@@ -108,39 +121,39 @@ Where you can verify cheaply, verify: the commit exists, the file says what you 
 
 ### Tick what this work completed
 
-Scan `current_tasks.md` for open items this work actually closed. For each:
+For each open item this work actually closed:
 
 - **Mark it `- [x]` and rewrite the text to say what happened**, not what was planned: `- [x] Deployed PROJ-231 to staging — 08-07, prod still pending`.
 - **Never strike through.** `- ~~struck~~` without a checkbox reads as done to a human and as open to the evening sweep, so it never leaves the file. The vault's `CLAUDE.md` ("How items leave `current_tasks.md`") is explicit on this.
-- **Leave the ticked item in place.** Don't sweep it out — that's `cleanup-daily-note`'s Step 2, which files it under the correct day. Because you also wrote it to Done Today in the same pass, that sweep will correctly find it already recorded and simply drop the duplicate.
-
-**Partial progress is not a tick.** If the work advanced an item without closing it, update its text to reflect the new state and leave it open. A three-environment deploy with one environment done is an edit, not a tick. Ticking something "basically done" is how work disappears.
+- **Leave the ticked item in place.** Sweeping it out is `cleanup-daily-note`'s Step 2, which files it under the correct day. Because you also wrote it to Done Today in the same pass, that sweep will find it already recorded and drop the duplicate.
 
 **Only tick what you can name the evidence for.** If you can't say what closed it, leave it open and say why in your report.
 
-### File what it genuinely opened
+### Update what this work advanced
 
-For each loose end, apply rule 7 first — **does it have an action and a doer?**
+**Partial progress is not a tick.** A three-environment deploy with one environment done is an update, not a tick. Rewrite the item's text to reflect the new state, leave it `- [ ]`, and extend its date tag: `` `(03-19, 03-21)` ``.
 
-- **Yes** → place it per rules 1–5, run the dedupe gate, write it tagged with today's `` `(MM-DD)` `` date.
-- **No** → it's status, a reference fact, a warning, or a finding. Don't file it. It's already captured in Work Stream; name it in your report and where it belongs if it's durable (topic note, `06_Memory/`).
+Keep the item inside rule 6's ~40 words: an update *replaces* state, it does not accumulate it. If the new state needs more explaining, that goes in Work Stream and the item points at it. Ticking something "basically done" is how work disappears — updating is the honest alternative, and it is why this skill still touches the file at all.
 
-Rule 7's second paragraph matters most here, because this is the moment it gets violated: a finding surfaced while working an item is not automatically a new item. Promote it only if it needs a decision or an action that nothing else will force. **Closing one item should not routinely open two.**
+### Stage what it genuinely opened
 
-If an item belongs to no existing project and isn't worth a new heading, ask rather than inventing a home for it.
+For each loose end, apply rule 7 — **does it have an action and a doer?**
+
+- **Yes** → write it to **Carry Forward**, under the matching heading. Not into `current_tasks.md`.
+- **No** → it's status, a reference fact, a warning, or a finding. Don't stage it. It's already in Work Stream; name it in your report, and where it belongs if it's durable (topic note, `06_Memory/`).
+
+Rule 7's second paragraph matters most here, because this is where it gets violated: a finding surfaced while working an item is not automatically a new item. Promote it only if it needs a decision or an action that nothing else will force. **Closing one item should not routinely open two.**
 
 ## Report
 
-State plainly:
-
 - **Ticked** — each item, with the evidence that closed it.
-- **Updated** — items advanced but still open, and what changed.
-- **Filed** — new items, under which heading, and any merge into an existing item.
-- **Not filed** — what you declined to write as a task and where it belongs instead. This is the most useful line in the report: it's the user's chance to overrule a judgment call only you had the context to make.
+- **Updated** — items advanced but still open, and what changed in the line.
+- **Staged** — new items written to Carry Forward, and the heading each is destined for. Say which headings are new.
+- **Not staged** — what you declined to write as a task and where it belongs instead. The most useful line in the report: the user's chance to overrule a judgment call only you had the context to make.
 
 Never present an inferred completion as a verified one. An item you *think* the work closed and an item you *watched* it close are different claims, and only the second justifies a tick. If unsure, leave it open and ask — an item wrongly left open costs one line; an item wrongly ticked disappears into the evening sweep and out of the file.
 
-If the balance is off — several items filed and none ticked — say so. A reconcile that only adds is one that isn't working.
+If the balance is off — several items staged and none ticked or updated — say so. A reconcile that only adds is one that isn't working.
 
 ## Example output
 
@@ -154,33 +167,35 @@ A session's additions to the daily note:
 - Fixed null check in widget_handler.py — widget_id was None for empty payloads
 - Debugged queue visibility timeout — batch size 10→1 (commit abc1234)
 - Confirmed the staging queue drains at 400/s — measured, not a task
-- Ref: PR #42 for PROJ-101
 
 ## ✅ Done Today
 - [x] PROJ-101: handle widgets with missing identifiers
 - [x] Raised PR #42
 
 ## ⏭ To Carry Forward (Evening Cleanup)
-*2 items filed to `current_tasks.md` → # widget-service*
+
+### # widget-service
+- [ ] Write unit tests for widget_handler
 ```
 
-…and the matching reconcile of `current_tasks.md`:
+…and `current_tasks.md` — one tick, one update, nothing added:
 
 ```markdown
 # widget-service
 - [x] **PROJ-101: handle widgets with missing identifiers** — fixed the null check,
       merged `abc1234`, PR #42 raised `(03-14)`
-- [ ] Roll the queue batch-size change to staging and prod — dev done 03-21,
+- [ ] Roll the queue batch-size change to staging and prod — dev done,
       two environments left `(03-19, 03-21)`
-- [ ] Write unit tests for widget_handler `(03-21)`
 ```
+
+The unit-test task was **not** added here — it's staged in Carry Forward for the evening.
 
 And the report back to the user:
 
 ```
 Ticked 1: PROJ-101 — merged abc1234, PR #42 raised.
-Updated 1: queue batch-size rollout — dev done, staging/prod still open (not a tick).
-Filed 1: unit tests for widget_handler → # widget-service.
-Not filed: "staging queue drains at 400/s" — a measurement, not a task.
+Updated 1: queue batch-size rollout — dev done, staging/prod left. Not a tick.
+Staged 1: unit tests for widget_handler → # widget-service (existing heading).
+Not staged: "staging queue drains at 400/s" — a measurement, not a task.
   It's in Work Stream; say the word if you want it in the topic note.
 ```
